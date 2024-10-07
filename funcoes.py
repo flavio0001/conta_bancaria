@@ -1,3 +1,4 @@
+import random
 from contaBancaria import Conta
 from datetime import datetime
 
@@ -73,7 +74,6 @@ def verificar_data(data_str):
 
 
 def gerar_numero_conta():
-    import random
     while True:
         numero_gerado = random.randint(10000, 99999)
         if all(conta.numero != str(numero_gerado) for conta in lista_contas):
@@ -122,22 +122,71 @@ def extrato():
         print("Conta não encontrada")
 
 
+def efetuar_transferencia():
+    nome_conta_origem = input("Digite o nome da conta de origem: ")
+    conta_origem = None
+
+    # Busca a conta de origem
+    for conta in lista_contas:
+        if conta.cliente == nome_conta_origem:
+            conta_origem = conta
+            break
+
+    if conta_origem is None:
+        print("Conta de origem não encontrada.")
+        return
+
+    print(f"Saldo atual da conta de origem ({conta_origem.cliente}): R${conta_origem.saldo:.2f}")
+
+    nome_conta_destino = input("Digite o nome da conta destino que deseja efetuar a operação: ")
+    conta_destino = None
+
+    # Busca a conta de destino
+    for conta in lista_contas:
+        if conta.cliente == nome_conta_destino:
+            conta_destino = conta
+            break
+
+    if conta_destino is None:
+        print("Conta de destino não encontrada.")
+        return
+
+    # Solicita o valor a ser transferido
+    try:
+        valor = float(input("Qual o valor a ser transferido? R$"))
+        if valor <= 0:
+            print("O valor da transferência deve ser positivo.")
+            return
+    except ValueError:
+        print("Valor inválido. Por favor, insira um número válido.")
+        return
+
+    # Verifica se há saldo suficiente na conta de origem
+    if conta_origem.saldo < valor:
+        print(f"Saldo insuficiente para realizar a transferência. Saldo disponível: R${conta_origem.saldo:.2f}")
+        return
+
+    conta_origem.transferir(conta_destino, valor)
+
+
 def submenu():
     opcoes = input("1 - Ver extrato da conta\n2 - Efetuar uma transferência\nDigite a opção: ")
 
     if opcoes == '1':
         extrato()
+    elif opcoes == '2':
+        efetuar_transferencia()
 
 
 def menu_principal():
     while True:
-        opc = int(input("1 - Cadastrar \n2 - Listar contas cadastradas \n3 - Remover cadastro\n4 - +Opções\nDigite uma opção: "))
+        opc = input("1 - Cadastrar \n2 - Listar contas cadastradas \n3 - Remover cadastro\n4 - +Opções\nDigite uma opção: ")
 
-        if opc == 1:
+        if opc == '1':
             cadastrar_conta()
-        elif opc == 2:
+        elif opc == '2':
             listar_contas()
-        elif opc == 3:
+        elif opc == '3':
             remover_conta()
-        elif opc == 4:
+        elif opc == '4':
             submenu()
